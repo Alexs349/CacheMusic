@@ -1,0 +1,23 @@
+name: CacheMusic
+options:
+  bundleIdPrefix: com.myname
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  CacheMusic:
+    type: application
+    platform: iOS
+    sources:
+      - CacheMusic
+    info:
+      path: CacheMusic/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.myname.cachemusic
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
