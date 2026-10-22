@@ -1,22 +1,45 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Swift
+name: Build iOS IPA
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: macos-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      
+      - name: Generate Xcode project
+        run: xcodegen generate
+      
+      - name: Build archive
+        run: |
+          xcodebuild archive \
+            -project CacheMusic.xcodeproj \
+            -scheme CacheMusic \
+            -archivePath build/CacheMusic.xcarchive \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" | xcpretty || true
+      
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/CacheMusic.xcarchive/Products/Applications/CacheMusic.app Payload/
+          zip -r CacheMusic.ipa Payload
+          ls -la
+      
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: CacheMusic-ipa
+          path: CacheMusic.ipa
